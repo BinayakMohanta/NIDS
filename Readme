@@ -1,0 +1,40 @@
+# Network Intrusion Detection System (NIDS)
+
+## Overview
+This project is a simple **Network Intrusion Detection System (NIDS)** built using **Python**, **MySQL**, and a **Tkinter-based GUI**. The system captures network packets, analyzes them for potential threats, stores detected intrusions in a MySQL database, and displays alerts in a user-friendly interface.
+
+## Features
+- **Packet Sniffing**: Captures network packets using Scapy.
+- **Intrusion Detection**: Identifies suspicious network activities based on predefined rules.
+- **Database Storage**: Logs detected intrusions into a MySQL database.
+- **Graphical User Interface (GUI)**: Displays alerts in real time using Tkinter.
+
+## Installation
+### Prerequisites
+Ensure you have the following installed on your system:
+- Python 3.x
+- MySQL Server
+- Required Python libraries:
+  ```sh
+  pip install scapy mysql-connector-python
+  ```
+
+### Database Setup
+1. Start MySQL server.
+2. Create a database named `nids_db`.
+3. Update the `host`, `user`, and `password` in the script to match your MySQL credentials.
+
+## Usage
+1. Run the script:
+   ```sh
+   python nids.py
+   ```
+2. Click **Start Sniffing** to begin network monitoring.
+3. Click **Show Alerts** to view detected intrusions.
+
+## Customization
+- Modify `suspicious_ips` in the script to add/remove suspected malicious IPs.
+- Enhance detection rules by incorporating deeper packet analysis.
+
+## License
+This project is open-source and licensed under the MIT License.
