@@ -1,0 +1,66 @@
+import tkinter as tk
+from tkinter import messagebox
+import mysql.connector
+from scapy.all import sniff, IP, TCP
+
+# Database connection
+conn = mysql.connector.connect(host='localhost', user='root', password='yourpassword', database='nids_db')
+cursor = conn.cursor()
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS intrusions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    src_ip VARCHAR(255),
+    dst_ip VARCHAR(255),
+    protocol VARCHAR(10),
+    alert VARCHAR(255)
+)
+""")
+conn.commit()
+
+def detect_packet(packet):
+    if packet.haslayer(IP):
+        src_ip = packet[IP].src
+        dst_ip = packet[IP].dst
+        protocol = 'TCP' if packet.haslayer(TCP) else 'OTHER'
+        
+        # Simple rule: Detect connections to a suspicious IP
+        suspicious_ips = ["192.168.1.100"]  # Example malicious IP
+        if dst_ip in suspicious_ips:
+            alert_msg = f"Suspicious activity detected: {src_ip} -> {dst_ip}"
+            cursor.execute("INSERT INTO intrusions (src_ip, dst_ip, protocol, alert) VALUES (%s, %s, %s, %s)", (src_ip, dst_ip, protocol, alert_msg))
+            conn.commit()
+            update_gui(alert_msg)
+
+def update_gui(alert_msg):
+    alert_list.insert(tk.END, alert_msg)
+
+def start_sniffing():
+    sniff(prn=detect_packet, store=False)
+
+def show_alerts():
+    cursor.execute("SELECT * FROM intrusions")
+    records = cursor.fetchall()
+    alert_list.delete(0, tk.END)
+    for row in records:
+        alert_list.insert(tk.END, row[4])
+
+# GUI Setup
+root = tk.Tk()
+root.title("Network Intrusion Detection System")
+
+frame = tk.Frame(root)
+frame.pack(pady=20)
+
+alert_list = tk.Listbox(frame, width=80, height=15)
+alert_list.pack()
+
+btn_show = tk.Button(root, text="Show Alerts", command=show_alerts)
+btn_show.pack(pady=5)
+
+btn_start = tk.Button(root, text="Start Sniffing", command=start_sniffing)
+btn_start.pack(pady=5)
+
+root.mainloop()
+
+# Close database connection
+conn.close()
